@@ -13,14 +13,18 @@ func init() {
 	sugar = log.Sugar()
 }
 
-func Info(format string) {
-	sugar.Infow("Custom error",
-		"error", format,
-	)
+func Info(msg string) {
+	sugar.Infof(msg)
 }
 
-func Error(format string) {
-	sugar.Errorw("Custom error",
-		"error", format,
-	)
+func Error(err error) {
+	sugar.Error(err)
+}
+
+func Errorw(msg string, kv interface{}) {
+	sugar.Errorw(msg, kv)
+}
+
+func Fatal(msg string) {
+	sugar.Fatal(msg)
 }
