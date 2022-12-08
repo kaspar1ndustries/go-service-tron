@@ -1,8 +1,7 @@
-# TRON Golang library
-<!-- ![](https://github.com/rep/name/workflows/Build/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/rep/name)](https://goreportcard.com/report/github.com/rep/name) 
-[![GoDoc](https://godoc.org/github.com/name/rep?status.svg)](https://godoc.org/github.com/name/rep)  -->
-
+# TRON Golang service
+<!-- ![](https://github.com/kaspar1ndustries/go-service-tron/workflows/Build/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kaspar1ndustries/go-service-tron)](https://goreportcard.com/report/github.com/kaspar1ndustries/go-service-tron) 
+[![GoDoc](https://godoc.org/github.com/kaspar1ndustries/go-service-tron?status.svg)](https://godoc.org/github.com/kaspar1ndustries/go-service-tron)  -->
 
 
 TRON Golang service for accessing [TRON Network](https://tron.network/) 
