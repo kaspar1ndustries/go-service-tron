@@ -7,13 +7,14 @@ import (
 	log "go-tron-wallet/logger"
 	"io/ioutil"
 	"net/http"
+
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	// "github.com/ethereum/go-ethereum/crypto"
 )
 
 type TronGrid struct {
-	Host string
-	Key  string
+	Host        string
+	Key         string
 	USDTaddress string
 }
 
@@ -35,17 +36,16 @@ type Tx struct {
 }
 
 const (
-	MAINNET = "https://api.trongrid.io"
-	TESTNET = "https://nile.trongrid.io"
+	MAINNET              = "https://api.trongrid.io"
+	TESTNET              = "https://nile.trongrid.io"
 	USDT_ADDRESS_MAINNET = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 	USDT_ADDRESS_TESTNET = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"
-	
 )
 
 // init testnet without api key
 func NewTronGridTestnet() TronGrid {
 	return TronGrid{
-		Host: TESTNET,
+		Host:        TESTNET,
 		USDTaddress: USDT_ADDRESS_TESTNET,
 	}
 }
@@ -53,9 +53,9 @@ func NewTronGridTestnet() TronGrid {
 // api key is required for mainnet
 func NewTronGridMainnet(apiKey string) TronGrid {
 	return TronGrid{
-		Host: MAINNET,
+		Host:        MAINNET,
 		USDTaddress: USDT_ADDRESS_MAINNET,
-		Key:  apiKey,
+		Key:         apiKey,
 	}
 }
 
@@ -65,7 +65,6 @@ func (tg TronGrid) Balance(address string) (uint64, error) {
 func (tg TronGrid) BalanceTrc20(address string, tokenName string) (uint64, error) {
 	return 0, nil
 }
-
 
 // API DOCS https://developers.tron.network/reference/get-account-info-by-address
 func (tg TronGrid) Account(address string) (AccountInfo, error) {
@@ -142,7 +141,6 @@ func (tg TronGrid) TransactionsTrc20(address string) ([]Tx, error) {
 	return txs, nil
 }
 
-
 // API DOCS https://developers.tron.network/reference/account-createaccount
 // API DOCS https://developers.tron.network/reference/triggersmartcontract
 func (tg TronGrid) TransferUSDT() error {
@@ -150,54 +148,55 @@ func (tg TronGrid) TransferUSDT() error {
 	// payload
 	/*
 			{
-		     "owner_address": "41D1E7A6BC354106CB410E65FF8B181C600FF14292",
-		     "contract_address": "41a7837ce56da0cbb28f30bcd5bff01d4fe7e4c6e3",
+		     "owner_address": "",
+		     "contract_address": "",
 		     "function_selector": "transfer(address,uint256)",
 		     "call_value": 0
 		}
 	*/
 	type CreateAccountPayload struct {
-		OwnerAddressHex    string `json:"owner_address"`
-		ContractAddressHex string `json:"contract_address"`
-		Function        string `json:"function_selector"`
-		CallValue       int    `json:"call_value"`
-		Parameter	   []map[string]interface{} `json:"parameter"`
+		OwnerAddressHex    string                   `json:"owner_address"`
+		ContractAddressHex string                   `json:"contract_address"`
+		Function           string                   `json:"function_selector"`
+		CallValue          int                      `json:"call_value"`
+		Parameter          []map[string]interface{} `json:"parameter"`
 	}
-	ownerAddress := "TNvfGttWNJrpnAVKVb5huh6ifARwEoJVEu"
+	ownerAddress := ""
 
 	payload := CreateAccountPayload{
-		OwnerAddressHex: hexutil.Encode([]byte(ownerAddress)),
+		OwnerAddressHex:    hexutil.Encode([]byte(ownerAddress)),
 		ContractAddressHex: hexutil.Encode([]byte(tg.USDTaddress)),
-		Function: "transfer(address,uint256)",
-		CallValue: 0,
+		Function:           "transfer(address,uint256)",
+		CallValue:          0,
 	}
-	/* parameters for transfer 
-	[{
-            type: 'address',
-            value: ACCOUNT
-        }, {
-            type: 'uint256',
-            value: 1000000
-        }]
-		*/
+	/* parameters for transfer
+		[{
+	            type: 'address',
+	            value: ACCOUNT
+	        }, {
+	            type: 'uint256',
+	            value: 1000000
+	        }]
+	*/
 	paramAddress := make(map[string]interface{})
 	paramAddress["type"] = "address"
-	paramAddress["value"] = "TJwY9pZg7r5xv4FVqAoSFkNjn1Feb3qfxX"
+	paramAddress["value"] = ""
 	payload.Parameter = append(payload.Parameter, paramAddress)
 	paramAmount := make(map[string]interface{})
 	paramAmount["type"] = "uint256"
 	paramAmount["value"] = 421
 	payload.Parameter = append(payload.Parameter, paramAmount)
+	// TODO encode ABI
 
-	url := fmt.Sprintf("%s/wallet/triggersmartcontract", tg.Host)
-	data, err := tg.postRequest(url, params)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
+	// url := fmt.Sprintf("%s/wallet/triggersmartcontract", tg.Host)
+	// data, err := tg.postRequest(url, params)
+	// if err != nil {
+	// 	log.Error(err)
+	// 	return nil, err
+	// }
 
-	fmt.Println(res)
-	fmt.Println(string(body))
+	// fmt.Println(res)
+	// fmt.Println(string(body))
 	return nil
 }
 
@@ -238,7 +237,6 @@ func (tg TronGrid) postRequest(url string, payload map[string]string) ([]byte, e
 	return body, err
 }
 
-}
 func (tg TronGrid) apiRequest(url string) ([]byte, error) {
 	log.Info(fmt.Sprintf("requesting %s", url))
 	req, _ := http.NewRequest("GET", url, nil)

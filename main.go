@@ -27,7 +27,6 @@ func main() {
 	}
 
 
-
 	// GIN
 	r := gin.Default()
 	// Recovery middleware
