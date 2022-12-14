@@ -4,9 +4,9 @@
 [![GoDoc](https://godoc.org/github.com/kaspar1ndustries/go-service-tron?status.svg)](https://godoc.org/github.com/kaspar1ndustries/go-service-tron)  -->
 
 
-TRON Golang service for accessing [TRON Network](https://tron.network/) 
+TRON tiny wallt for working with [TRON Network](https://tron.network/) written in Go
 
-**Warning:** this repository is under active development, not ready for production use
+**Warning:** this repository is under some kind of active development, and intended only for personal use.
 
 
 ## TODO
