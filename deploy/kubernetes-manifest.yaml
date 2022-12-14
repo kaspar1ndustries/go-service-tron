@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: go-tron-tiny-wallet-ingress
+spec:
+  rules:
+  - host: notify.zonde.space
+    http:
+        paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: go-tron-tiny-wallet
+              port:
+                number: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: go-tron-tiny-wallet
+spec:
+  type: LoadBalancer
+  selector:
+    app: go-tron-tiny-wallet
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-tron-tiny-wallet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-tron-tiny-wallet
+  template:
+    metadata:
+      labels:
+        app: go-tron-tiny-wallet
+    spec:
+      containers:
+      - name: nginx
+        image: docker.io/youracc/go-tron-tiny-wallet
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: regcred-dockerhub-youracc

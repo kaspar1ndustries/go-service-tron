@@ -1,0 +1,53 @@
+name: CI-api
+
+on: [push]
+env:
+  REGISTRY: "registry.digitalocean.com/user"
+  IMAGE_NAME: "image_name"
+  DOCKERFILE: "deploy/Dockerfile"
+  RELEASE_VERSION: ${GITHUB_REF:11}
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    # build 
+    - name: Build Docker image
+      run: docker build -f $(echo $DOCKERFILE) -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
+
+    # build latest (PaaS requierment)
+    - name: Build Docker image (as latest)
+      run: docker build -f $(echo $DOCKERFILE) -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):latest .
+
+    # login to DO registry
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - name: Log in to DigitalOcean Container Registry with short-lived credentials
+      run: doctl registry login --expiry-seconds 600
+      
+    - name: Push image to DigitalOcean Container Registry
+      run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+    # also update lates tag
+    - name: Push image to DigitalOcean Container Registry (latest)
+      run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):latest
+
+  # notify about build result to telegram bot
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Send build result notification to Telegram
+      if: success()
+      run: curl -X POST "https://api.telegram.org/bot$(echo $TELEGRAM_BOT_TOKEN)/sendMessage?chat_id=$(echo $TELEGRAM_CHAT_ID)&text=✅%20Build%20${IMAGE_NAME}%20is%20successful!%0A%0ARun%20ID%20${GITHUB_RUN_ID}%20and%20number%20${GITHUB_RUN_NUMBER}"
+
+    - name: Send build result notification to Telegram
+      if: failure()
+      run: curl -X POST "https://api.telegram.org/bot$(echo $TELEGRAM_BOT_TOKEN)/sendMessage?chat_id=$(echo $TELEGRAM_CHAT_ID)&text=🤬%20${IMAGE_NAME}%20is%20Build%20failed!%0A%0ARun%20ID%20${GITHUB_RUN_ID}%20and%20number%20${GITHUB_RUN_NUMBER}"
+
